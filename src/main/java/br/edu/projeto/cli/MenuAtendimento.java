@@ -46,6 +46,11 @@ public class MenuAtendimento {
             } catch (NumberFormatException e) {
                 System.out.println("Opção inválida. Digite um número.");
             }
+
+            if (executando) {
+                aguardarEnter();
+                limparTela();
+            }
         }
     }
 
@@ -114,5 +119,17 @@ public class MenuAtendimento {
                     senha.getHoraEmissao().format(FORMATO_DATA)
             );
         }
+    }
+
+    private void aguardarEnter() {
+
+        System.out.println("\nPressione ENTER para continuar...");
+        scanner.nextLine();
+    }
+
+    private void limparTela() {
+
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }
