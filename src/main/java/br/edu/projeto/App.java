@@ -2,7 +2,11 @@ package br.edu.projeto;
 
 import br.edu.projeto.model.Senha;
 import br.edu.projeto.model.TipoSenha;
+import br.edu.projeto.repository.HistoricoArquivoRepository;
+import br.edu.projeto.repository.HistoricoRepository;
 import br.edu.projeto.service.GeradorDeSenhasImpl;
+
+import java.nio.file.Path;
 
 public class App {
     public static void main(String[] args) {
@@ -30,5 +34,21 @@ public class App {
         System.out.println(senha2);
 
         System.out.println(senha1.getHoraEmissao());
+
+        System.out.println("\n-------------------------------------");
+        System.out.println("         Teste do histórico            \n");
+
+        HistoricoRepository historico =
+                new HistoricoArquivoRepository(Path.of("historico-teste.csv"));
+
+        historico.salvar(senha1);
+        historico.salvar(senha2);
+
+        System.out.println("Senhas salvas com sucesso!");
+
+        System.out.println("\nSenhas registradas:");
+
+        historico.listar().forEach(System.out::println);
+
     }
 }

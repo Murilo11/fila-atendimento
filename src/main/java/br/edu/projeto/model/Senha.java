@@ -14,6 +14,12 @@ public class Senha {
         this.horaEmissao = LocalDateTime.now();
     }
 
+    public Senha(TipoSenha tipo, int numero, LocalDateTime horaEmissao) {
+        this.tipo = tipo;
+        this.numero = numero;
+        this.horaEmissao = horaEmissao;
+    }
+
     public TipoSenha getTipo() {
         return tipo;
     }
