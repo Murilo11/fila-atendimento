@@ -39,4 +39,5 @@ build/
 .DS_Store
 .agents
 .gemini
-historico.csv
+historico-teste.csv
+plano-fila-atendimento.md
