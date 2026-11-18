@@ -2,7 +2,6 @@ package br.edu.projeto.service;
 import br.edu.projeto.model.TipoSenha;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
 
