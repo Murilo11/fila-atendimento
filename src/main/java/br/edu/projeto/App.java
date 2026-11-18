@@ -3,6 +3,7 @@ package br.edu.projeto;
 import br.edu.projeto.cli.MenuAtendimento;
 import br.edu.projeto.repository.HistoricoArquivoRepository;
 import br.edu.projeto.repository.HistoricoRepository;
+import br.edu.projeto.service.FilaAtendimento;
 import br.edu.projeto.service.GeradorDeSenhas;
 import br.edu.projeto.service.GeradorDeSenhasImpl;
 
@@ -14,7 +15,11 @@ public class App {
 
         HistoricoRepository historico = new HistoricoArquivoRepository();
 
-        MenuAtendimento menu = new MenuAtendimento(gerador, historico);
+        historico.limpar();
+
+        FilaAtendimento fila = new FilaAtendimento();
+
+        MenuAtendimento menu = new MenuAtendimento(gerador, historico, fila);
 
         menu.iniciar();
     }

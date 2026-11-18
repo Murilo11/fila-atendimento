@@ -1,8 +1,10 @@
 package br.edu.projeto.cli;
 
+import br.edu.projeto.model.Atendimento;
 import br.edu.projeto.model.Senha;
 import br.edu.projeto.model.TipoSenha;
 import br.edu.projeto.repository.HistoricoRepository;
+import br.edu.projeto.service.FilaAtendimento;
 import br.edu.projeto.service.GeradorDeSenhas;
 
 import java.time.format.DateTimeFormatter;
@@ -14,17 +16,20 @@ public class MenuAtendimento {
     private final Scanner scanner;
     private final GeradorDeSenhas gerador;
     private final HistoricoRepository historico;
+    private final FilaAtendimento fila;
 
     private static final DateTimeFormatter FORMATO_DATA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public MenuAtendimento(
             GeradorDeSenhas gerador,
-            HistoricoRepository historico
+            HistoricoRepository historico,
+            FilaAtendimento fila
     ) {
         this.scanner = new Scanner(System.in);
         this.gerador = gerador;
         this.historico = historico;
+        this.fila = fila;
     }
 
     public void iniciar() {
@@ -76,9 +81,9 @@ public class MenuAtendimento {
 
             case 2 -> gerarSenha(TipoSenha.PREFERENCIAL);
 
-            case 3 -> System.out.println("Funcionalidade aguardando integração com a fila.");
+            case 3 -> chamarProximaSenha();
 
-            case 4 -> System.out.println("Funcionalidade aguardando integração com a fila.");
+            case 4 -> consultarFila();
 
             case 5 -> consultarHistorico();
 
@@ -98,27 +103,66 @@ public class MenuAtendimento {
         int numero = gerador.gerarSenha(tipo);
         Senha senha = new Senha(tipo, numero);
 
+        fila.adicionarSenha(senha);
+
         System.out.println("\nSenha gerada: " + senha);
+    }
+
+    private void chamarProximaSenha() {
+
+        Senha senha = fila.chamarProxima();
+
+        if (senha == null) {
+            System.out.println("\nNão existem senhas aguardando atendimento.");
+            return;
+        }
+
+        Atendimento atendimento = new Atendimento(senha);
+
+        System.out.println("\nAtendimento realizado: " + atendimento);
+
+        historico.salvar(atendimento);
+
+        System.out.println("Atendimento registrado no histórico.");
+    }
+
+    private void consultarFila() {
+
+        List<Senha> senhas = fila.consultarFila();
+
+        System.out.println(senhas.isEmpty() ? "\nNão existem senhas aguardando atendimento."
+                                            : "\n========== FILA DE ATENDIMENTO =========="
+        );
+
+        if (!senhas.isEmpty()) {
+            senhas.forEach(System.out::println);
+            System.out.println("=========================================");
+        }
     }
 
     private void consultarHistorico() {
 
-        List<Senha> senhas = historico.listar();
+        List<Atendimento> atendimentos = historico.listar();
 
-        if (senhas.isEmpty()) {
-            System.out.println("\nNenhuma senha registrada no histórico.");
+        if (atendimentos.isEmpty()) {
+            System.out.println("\nNenhum atendimento registrado no histórico.");
             return;
         }
 
         System.out.println("\n========== HISTÓRICO ==========");
 
-        for (Senha senha : senhas) {
+        for (Atendimento atendimento : atendimentos) {
+            Senha senha = atendimento.getSenha();
+
             System.out.printf(
-                    "%s | Emitida em: %s%n",
+                    "%s | Emitida em: %s | Atendida em: %s%n",
                     senha,
-                    senha.getHoraEmissao().format(FORMATO_DATA)
+                    senha.getHoraEmissao().format(FORMATO_DATA),
+                    atendimento.getHoraAtendimento().format(FORMATO_DATA)
             );
         }
+
+        System.out.println("================================");
     }
 
     private void aguardarEnter() {
