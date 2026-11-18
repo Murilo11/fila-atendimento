@@ -1,5 +1,6 @@
 package br.edu.projeto.cli;
 
+import br.edu.projeto.model.Atendimento;
 import br.edu.projeto.model.Senha;
 import br.edu.projeto.model.TipoSenha;
 import br.edu.projeto.repository.HistoricoRepository;
@@ -116,11 +117,13 @@ public class MenuAtendimento {
             return;
         }
 
-        System.out.println("\nPróxima senha: " + senha);
+        Atendimento atendimento = new Atendimento(senha);
 
-        historico.salvar(senha);
+        System.out.println("\nAtendimento realizado: " + atendimento);
 
-        System.out.println("Senha registrada no histórico.");
+        historico.salvar(atendimento);
+
+        System.out.println("Atendimento registrado no histórico.");
     }
 
     private void consultarFila() {
@@ -139,22 +142,27 @@ public class MenuAtendimento {
 
     private void consultarHistorico() {
 
-        List<Senha> senhas = historico.listar();
+        List<Atendimento> atendimentos = historico.listar();
 
-        if (senhas.isEmpty()) {
-            System.out.println("\nNenhuma senha registrada no histórico.");
+        if (atendimentos.isEmpty()) {
+            System.out.println("\nNenhum atendimento registrado no histórico.");
             return;
         }
 
         System.out.println("\n========== HISTÓRICO ==========");
 
-        for (Senha senha : senhas) {
+        for (Atendimento atendimento : atendimentos) {
+            Senha senha = atendimento.getSenha();
+
             System.out.printf(
-                    "%s | Emitida em: %s%n",
+                    "%s | Emitida em: %s | Atendida em: %s%n",
                     senha,
-                    senha.getHoraEmissao().format(FORMATO_DATA)
+                    senha.getHoraEmissao().format(FORMATO_DATA),
+                    atendimento.getHoraAtendimento().format(FORMATO_DATA)
             );
         }
+
+        System.out.println("================================");
     }
 
     private void aguardarEnter() {

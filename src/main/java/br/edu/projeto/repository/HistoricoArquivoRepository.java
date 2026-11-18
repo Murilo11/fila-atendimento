@@ -1,5 +1,6 @@
 package br.edu.projeto.repository;
 
+import br.edu.projeto.model.Atendimento;
 import br.edu.projeto.model.Senha;
 import br.edu.projeto.model.TipoSenha;
 
@@ -16,7 +17,8 @@ import java.util.Objects;
 
 public class HistoricoArquivoRepository implements HistoricoRepository {
 
-    private static final String CABECALHO = "tipo,numero,horaEmissao";
+    private static final String CABECALHO =
+            "tipo,numero,horaEmissao,horaAtendimento";
 
     private final Path caminhoArquivo;
 
@@ -29,9 +31,11 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
     }
 
     @Override
-    public void salvar(Senha senha) {
+    public void salvar(Atendimento atendimento) {
 
-        Objects.requireNonNull(senha, "A senha não pode ser nula.");
+        Objects.requireNonNull(atendimento, "O atendimento não pode ser nulo.");
+
+        Senha senha = atendimento.getSenha();
 
         try {
             Path diretorio = caminhoArquivo.getParent();
@@ -45,7 +49,9 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
 
             String registro = senha.getTipo().name() + ","
                     + senha.getNumero() + ","
-                    + senha.getHoraEmissao() + System.lineSeparator();
+                    + senha.getHoraEmissao() + ","
+                    + atendimento.getHoraAtendimento()
+                    + System.lineSeparator();
 
             if (arquivoVazio) {
                 registro = CABECALHO + System.lineSeparator() + registro;
@@ -65,9 +71,9 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
     }
 
     @Override
-    public List<Senha> listar() {
+    public List<Atendimento> listar() {
 
-        List<Senha> historico = new ArrayList<>();
+        List<Atendimento> historico = new ArrayList<>();
 
         if (!Files.exists(caminhoArquivo)) {
             return historico;
@@ -87,7 +93,7 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
 
                 String[] dados = linha.split(",", -1);
 
-                if (dados.length != 3) {
+                if (dados.length != 4) {
                     throw new IllegalStateException(
                             "Registro inválido no histórico: " + linha
                     );
@@ -96,10 +102,15 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
                 TipoSenha tipo = TipoSenha.valueOf(dados[0]);
                 int numero = Integer.parseInt(dados[1]);
                 LocalDateTime horaEmissao = LocalDateTime.parse(dados[2]);
+                LocalDateTime horaAtendimento = LocalDateTime.parse(dados[3]);
 
                 Senha senha = new Senha(tipo, numero, horaEmissao);
+                Atendimento atendimento = new Atendimento(
+                        senha,
+                        horaAtendimento
+                );
 
-                historico.add(senha);
+                historico.add(atendimento);
             }
 
         } catch (IOException e) {
@@ -107,5 +118,14 @@ public class HistoricoArquivoRepository implements HistoricoRepository {
         }
 
         return historico;
+    }
+
+    @Override
+    public void limpar() {
+        try {
+            Files.deleteIfExists(caminhoArquivo);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Erro ao limpar o histórico.", e);
+        }
     }
 }

@@ -1,13 +1,14 @@
 package br.edu.projeto.repository;
 
-import br.edu.projeto.model.Senha;
+import br.edu.projeto.model.Atendimento;
 
 import java.util.List;
 
 public interface HistoricoRepository {
 
-    void salvar(Senha senha);
+    void salvar(Atendimento atendimento);
 
-    List<Senha> listar();
+    List<Atendimento> listar();
 
+    void limpar();
 }

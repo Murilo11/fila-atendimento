@@ -40,4 +40,5 @@ build/
 .agents
 .gemini
 historico-teste.csv
+historico.csv
 plano-fila-atendimento.md

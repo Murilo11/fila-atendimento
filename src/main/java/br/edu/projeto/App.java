@@ -15,6 +15,8 @@ public class App {
 
         HistoricoRepository historico = new HistoricoArquivoRepository();
 
+        historico.limpar();
+
         FilaAtendimento fila = new FilaAtendimento();
 
         MenuAtendimento menu = new MenuAtendimento(gerador, historico, fila);
